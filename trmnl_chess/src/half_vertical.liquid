@@ -1,0 +1,136 @@
+{%- comment -%}
+  This template now gets its variables directly from the JSON response
+  of the `polling_url` defined in `.trmnlp.yml`.
+  
+  If the poller returns `{"status": "welcome"}`, it shows the welcome screen.
+  If the poller returns a full game state object, it shows the board/game over screen.
+
+  Backend URL resolution order:
+    1) Custom field value provided in TRMNL dashboard (trmnl.plugin_settings.custom_fields_values.backend_url)
+    2) Variable injected via .trmnlp.yml (backend_url) for local dev
+    3) Fallback to production domain
+{%- endcomment -%}
+
+{%- comment -%}
+  TRMNL renders polling responses under merge_variables.IDX_0; local preview injects fields at root.
+  Normalize payload to `payload` so downstream uses work in both environments.
+{%- endcomment -%}
+{%- assign payload = merge_variables.IDX_0 
+    | default: merge_variables.idx_0 
+    | default: merge_variables.data 
+    | default: merge_variables.0 
+    | default: idx_0 
+    | default: data 
+    | default: nil -%}
+{%- assign backend_url = trmnl.plugin_settings.custom_fields_values.backend_url 
+    | default: backend_url 
+    | default: trmnl.custom_fields.backend_url 
+    | default: 'https://trmnl-chess.vercel.app' -%}
+{%- assign status = payload.status | default: status -%}
+{%- assign players = payload.players | default: players -%}
+{%- assign fen = payload.fen | default: fen -%}
+{%- assign winner = payload.winner | default: winner -%}
+{%- assign turn = payload.turn | default: turn -%}
+{%- assign lastMove = payload.lastMove | default: lastMove -%}
+{%- assign id = payload.id | default: id -%}
+
+{% if status == 'welcome' or status == nil %}
+    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center;">
+        <h1 style="font-size: 2em;">Let's Play trmnl Chess!</h1>
+        <p>Scan the QR code to begin.</p>
+        <img src="{{ backend_url }}/qr_code.png" alt="QR Code to start the game">
+    </div>
+{% else %}
+    <style>
+        .container { display: flex; width: 100%; height: 100%; }
+        .board-container { flex: 2; display: flex; align-items: center; justify-content: center; border-right: 3px solid black; padding-right: 20px; }
+        .chessboard { border-collapse: separate; border-spacing: 0; height: 85vh; width: 85vh; border: 3px solid black; table-layout: fixed; }
+        .chessboard tr { height: 12.5%; }
+        .chessboard td { width: 12.5%; height: calc(85vh / 8); text-align: center; font-size: 3em; line-height: 1; padding: 0; border: 1px solid #666; }
+        .chessboard .light { background-color: #fff; }
+        .chessboard .dark { background-color: #ccc; }
+        .right-side { flex: 1; display: flex; flex-direction: column; }
+        .game-info { text-align: center; padding: 10px; font-size: 1.1em; border-bottom: 3px solid black; }
+        .qr-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+        .qr-container img { width: 220px; height: 220px; }
+        .qr-container p { margin: 0; font-size: 1.4em; font-weight: bold; }
+        .game-over { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center; }
+    </style>
+
+    {% if status != 'in_progress' %}
+        <div class="game-over">
+            <h1 style="font-size: 2.5em;">Game Over</h1>
+            {% if winner == 'draw' %}
+                <h2>It's a Draw! ({{ status }})</h2>
+            {% else %}
+                {%- assign winner_name = players[0] -%}
+                {% if winner == 'black' %}
+                    {%- assign winner_name = players[1] -%}
+                {% endif %}
+                {% if status == 'resignation' %}
+                    <h2 style="color: #10b981;">Congratulations {{ winner_name }}!</h2>
+                    <p style="font-size: 1.5em; margin: 20px 0;">Victory by resignation</p>
+                {% elsif status == 'checkmate' %}
+                    <h2 style="color: #10b981;">Checkmate!</h2>
+                    <p style="font-size: 1.5em; margin: 20px 0;">{{ winner_name }} ({{ winner }}) wins!</p>
+                {% else %}
+                    <h2>{{ winner_name }} ({{ winner }}) wins!</h2>
+                    <p style="font-size: 1.5em; margin: 20px 0;">({{ status }})</p>
+                {% endif %}
+            {% endif %}
+            <p>Scan to play a new game.</p>
+            <img src="{{ backend_url }}/qr_code.png" alt="QR Code to start a new game">
+        </div>
+    {% else %}
+        <div class="container">
+            <div class="board-container">
+            {%- assign fen_parts = fen | split: " " -%}
+            {%- assign board_fen = fen_parts[0] -%}
+            {%- assign ranks = board_fen | split: "/" -%}
+            <table class="chessboard">
+                {% for rank in ranks %}
+                    <tr>
+                        {% assign rank_expanded = rank | replace: "8", "11111111" | replace: "7", "1111111" | replace: "6", "111111" | replace: "5", "11111" | replace: "4", "1111" | replace: "3", "111" | replace: "2", "11" %}
+                        {% assign pieces = rank_expanded | split: "" %}
+                        {% for piece in pieces %}
+                            {% assign row_num = forloop.parentloop.index | modulo: 2 %}
+                            {% assign col_num = forloop.index | modulo: 2 %}
+                            {% assign is_light = row_num | plus: col_num | modulo: 2 %}
+                            {%- comment -%} Calculate square coordinates for highlighting {%- endcomment -%}
+                            {%- assign file_index = forloop.index | minus: 1 -%}
+                            {%- assign rank_index = forloop.parentloop.index | minus: 1 -%}
+                            {%- assign files = "abcdefgh" | split: "" -%}
+                            {%- assign ranks = "87654321" | split: "" -%}
+                            {%- assign square = files[file_index] | append: ranks[rank_index] -%}
+                            {%- assign is_last_move = false -%}
+                            {%- if lastMove and lastMove != null -%}
+                                {%- if square == lastMove.from or square == lastMove.to -%}
+                                    {%- assign is_last_move = true -%}
+                                {%- endif -%}
+                            {%- endif -%}
+                            <td class="{% if is_light == 1 %}light{% else %}dark{% endif %}{% if is_last_move %} last-move{% endif %}" style="{% if is_last_move %}border: 4px solid #000; box-sizing: border-box;{% endif %}">
+                                {% case piece %}
+                                    {% when 'r' %}<span>&#9820;</span>{% when 'n' %}<span>&#9822;</span>{% when 'b' %}<span>&#9821;</span>{% when 'q' %}<span>&#9819;</span>{% when 'k' %}<span>&#9818;</span>{% when 'p' %}<span>&#9823;</span>
+                                    {% when 'R' %}<span>&#9814;</span>{% when 'N' %}<span>&#9816;</span>{% when 'B' %}<span>&#9815;</span>{% when 'Q' %}<span>&#9813;</span>{% when 'K' %}<span>&#9812;</span>{% when 'P' %}<span>&#9817;</span>
+                                    {% else %}<span></span>
+                                {% endcase %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </table>
+            </div>
+            <div class="right-side">
+                <div class="game-info">
+                    <strong>{{ players[0] }} (W) vs. {{ players[1] }} (B)</strong><br>
+                    {% if turn == 'w' %}White's Turn{% else %}Black's Turn{% endif %}
+                    {% if lastMove and lastMove != null %}<br>Last: {{ lastMove.from }} → {{ lastMove.to }}{% endif %}
+                </div>
+                <div class="qr-container">
+                    <img src="{{ backend_url }}/api/games/{{ id }}/qr" alt="QR Code">
+                    <p>Scan to Move</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}

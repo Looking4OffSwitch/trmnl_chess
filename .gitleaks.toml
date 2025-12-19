@@ -1,0 +1,5 @@
+[allowlist]
+  description = "Ignore known non-secret placeholder samples"
+  paths = [
+    "website/backend/.env.example"
+  ]

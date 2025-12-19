@@ -1,0 +1,155 @@
+# Ignore bundler config
+.bundle/
+vendor/bundle/
+
+# Ignore all logfiles and tempfiles
+/log/*.log
+/tmp/*
+log/
+tmp/
+
+# Ignore database files
+db/*.sqlite3
+db/*.sqlite3-journal
+/db/*.javadb/
+
+# Ignore uploaded files in development
+/public/system/*
+/public/uploads/*
+/public/assets/*
+
+# Ignore compiled assets
+/public/packs
+/public/packs-test
+/public/assets
+
+# Ignore coverage results
+/coverage/
+coverage.data
+.resultset.json
+
+# Ignore specific configuration files that might contain sensitive data
+/config/database.yml
+/config/master.key
+/config/credentials.yml.enc
+/config/secrets.yml
+/config/environments/*.key
+
+# Ignore RubyMine project files
+.idea/
+
+# Ignore VS Code settings
+.vscode/
+
+# Ignore Mac OS X files
+.DS_Store
+.byebug_history
+
+# Ignore editor/IDE specific files
+*.swp
+*~
+.project
+.settings
+.tmproj
+.vscode/
+
+# Ignore test-related files
+.rspec
+
+# Ignore generated documentation
+/doc/api/
+/doc/app/
+
+# Ignore other common temporary files
+*.bak
+*.orig
+*.rej
+*.swo
+*.rbc
+*.sassc
+rerun.txt
+pickle-email-*.html
+
+# Node.js dependencies
+node_modules/
+package-lock.json
+
+# Ignore yarn.lock, if using Yarn
+yarn-error.log
+.yarn-integrity
+
+# Ignore the Ruby version file
+.ruby-version
+
+# Ignore the Spring server pid file
+/tmp/spring.sock
+.byebug_history
+
+# Ignore the Passenger preloader file
+/tmp/restart.txt
+
+# Ignore the Puma pidfile and statefile
+/tmp/pids/server.pid
+/tmp/pids/puma.state
+
+# Ignore the Zeus socket
+.zeus.sock
+
+# Ignore the Bootsnap cache directory
+tmp/cache/bootsnap-*
+
+# Ignore the webpacker binstubs
+/bin/*
+!/bin/rails
+!/bin/rake
+!/bin/setup
+!/bin/update
+!/bin/yarn
+!/bin/webpack
+!/bin/webpack-dev-server
+
+# Ignore the listen gem's .listen_group file
+.listen_group
+
+# Ignore the RuboCop cache file
+.rubocop_cache
+
+# Ignore the SimpleCov cache file
+.simplecov
+
+# Ignore the Zeitwerk cache directory
+tmp/zeitwerk-cache
+
+# Ignore the Webpacker cache directory
+tmp/webpacker
+
+# Ignore the Vite cache directory
+.vite/
+
+# Ignore the esbuild cache directory
+.esbuild/
+
+# Ignore the Docker build context
+.dockerignore
+
+# Ignore the .env file, which often contains sensitive environment variables
+.env
+.env.*
+!.env.development
+!.env.test
+
+# Ignore generated QR code (created by dev.sh with local IP)
+trmnl_chess/src/qr_code.png
+
+# Ignore generated frontend config (created by dev.sh with backend URL)
+website/site/config.js
+
+# Ignore runtime game state file (created by backend server)
+trmnl_chess/CURRENT_GAME.id
+
+# Ignore dev.sh PID tracking file
+.dev_pids
+
+# Ignore settings.yml backup (created by dev.sh for production URLs)
+trmnl_chess/src/settings.yml.backup
+.vercel

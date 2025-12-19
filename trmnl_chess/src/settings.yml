@@ -1,0 +1,18 @@
+---
+strategy: polling
+no_screen_padding: 'no'
+dark_mode: 'no'
+static_data: ''
+polling_verb: get
+polling_url: https://chess.example.com/api/trmnl-state
+polling_headers: ''
+polling_body: 
+id: 184284
+custom_fields:
+- keyname: backend_url
+  name: Backend URL
+  field_type: url
+  required: true
+  default: https://chess.example.com
+name: trmnl Chess
+refresh_interval: 15

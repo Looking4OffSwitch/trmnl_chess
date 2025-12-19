@@ -1,0 +1,14 @@
+# TRMNLP configuration
+---
+watch:
+  - .trmnlp.yml
+  - src
+
+polling_url: https://chess.example.com/api/trmnl-state
+
+custom_fields:
+  backend_url: https://chess.example.com
+
+variables:
+  trmnl: {}
+  backend_url: https://chess.example.com

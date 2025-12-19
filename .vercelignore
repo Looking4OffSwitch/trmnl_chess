@@ -1,0 +1,13 @@
+# Ignore the trmnl plugin development files
+trmnl_chess/
+
+# Ignore local development script
+dev.sh
+
+# Ignore the project's git directory
+.git/
+
+# Ignore the README and PRD from the deployment
+README.md
+PRD.md
+TASKS.md

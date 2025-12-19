@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRMNL Chess - Play Chess Online</title>
+
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'chess-light': '#eeeed2',
+                        'chess-dark': '#769656',
+                        'chess-green': {
+                            50: '#f0f9f4',
+                            100: '#dcf4e4',
+                            200: '#bae7cd',
+                            300: '#88d4ad',
+                            400: '#52ba87',
+                            500: '#2d9d6d',
+                            600: '#1f7f56',
+                            700: '#1a6647',
+                            800: '#17513a',
+                            900: '#144330',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer components {
+            .chess-board-preview {
+                background:
+                    repeating-conic-gradient(#eeeed2 0% 25%, #769656 0% 50%)
+                    50% / 40px 40px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-chess-dark rounded-lg flex items-center justify-center text-2xl">
+                        ♔
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">TRMNL Chess</h1>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <button id="force-refresh-button"
+                            class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-medium rounded-lg transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v6h6M20 20v-6h-6M5 19A9 9 0 0119 5M5 5a9 9 0 0114 14"></path>
+                        </svg>
+                        Force Refresh
+                    </button>
+
+                    <button id="theme-toggle"
+                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                            aria-label="Toggle dark mode">
+                        <svg class="w-6 h-6 text-gray-800 dark:text-gray-200 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 8 0z"></path>
+                        </svg>
+                        <svg class="w-6 h-6 text-gray-800 dark:text-gray-200 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+
+            <!-- Left Column - Hero Content -->
+            <div class="space-y-8">
+                <div class="space-y-4">
+                    <h2 class="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white leading-tight">
+                        Play Chess on Your
+                        <span class="text-chess-dark dark:text-chess-green-400">TRMNL Device</span>
+                    </h2>
+                    <p class="text-xl text-gray-600 dark:text-gray-300">
+                        Challenge your friends to a game of chess. Play on any device while your TRMNL e-ink display shows the live game board.
+                    </p>
+                </div>
+
+                <!-- New Game Form -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8">
+                    <h3 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Start a New Game</h3>
+
+                    <form id="player-form" class="space-y-4">
+                        <div>
+                            <label for="player1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Player 1 (White)
+                            </label>
+                            <input type="text"
+                                   id="player1"
+                                   name="player1"
+                                   value="Bob"
+                                   placeholder="Enter name"
+                                   required
+                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-chess-dark dark:focus:ring-chess-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all">
+                        </div>
+
+                        <div>
+                            <label for="player2" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Player 2 (Black)
+                            </label>
+                            <input type="text"
+                                   id="player2"
+                                   name="player2"
+                                   value="Alice"
+                                   placeholder="Enter name"
+                                   required
+                                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-chess-dark dark:focus:ring-chess-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all">
+                        </div>
+
+                        <button type="submit"
+                                class="w-full bg-chess-dark hover:bg-chess-green-700 text-white font-semibold py-4 px-6 rounded-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl">
+                            Start Game
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Features List -->
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <div class="flex items-start space-x-3 text-gray-700 dark:text-gray-300">
+                        <svg class="w-6 h-6 text-chess-dark dark:text-chess-green-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Click-to-move interface</span>
+                    </div>
+                    <div class="flex items-start space-x-3 text-gray-700 dark:text-gray-300">
+                        <svg class="w-6 h-6 text-chess-dark dark:text-chess-green-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Full move validation</span>
+                    </div>
+                    <div class="flex items-start space-x-3 text-gray-700 dark:text-gray-300">
+                        <svg class="w-6 h-6 text-chess-dark dark:text-chess-green-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Move history & analysis</span>
+                    </div>
+                    <div class="flex items-start space-x-3 text-gray-700 dark:text-gray-300">
+                        <svg class="w-6 h-6 text-chess-dark dark:text-chess-green-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>E-ink display support</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column removed (was decorative board preview) -->
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center text-gray-600 dark:text-gray-400">
+                <p>Built for TRMNL e-ink displays • Powered by chess.js</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script>
+        // Dark mode toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+
+        // Check for saved theme preference or default to light mode
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        if (currentTheme === 'dark') {
+            html.classList.add('dark');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            const newTheme = html.classList.contains('dark') ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+        });
+    </script>
+    <script src="main.js"></script>
+</body>
+</html>

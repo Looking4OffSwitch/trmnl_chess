@@ -1,0 +1,11 @@
+services:
+  trmnl-chess:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - website/backend/.env
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    # For Coolify, set environment variables in the UI instead of mounting .env
